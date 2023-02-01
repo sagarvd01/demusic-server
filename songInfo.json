@@ -4,37 +4,44 @@
         {
             "index": "abstract-fashion",
             "name": "Abstract Fashion Pop",
-            "author": "QubeSounds"
+            "author": "QubeSounds",
+            "duration": "01:32"
         },
         {
             "index": "something-about",
             "name": "Something About You - Marilyn Ford",
-            "author": "Marilyn Ford"
+            "author": "Marilyn Ford",
+            "duration": "03:30"
         },
         {
             "index": "a-small-miracle",
             "name": "A Small Miracle",
-            "author": "Romarecord1973"
+            "author": "Romarecord1973",
+            "duration": "01:16"
         },
         {
             "index": "relaxed-vlog",
             "name": "Relaxed Vlog",
-            "author": "Ashot-Danielyan-Composer"
+            "author": "Ashot-Danielyan-Composer",
+            "duration": "02:20"
         },
         {
             "index": "lifelike",
             "name": "Lifelike",
-            "author": "AlexiAction"
+            "author": "AlexiAction",
+            "duration": "02:24"
         },
         {
             "index": "mountain-path",
             "name": "Mountain Path",
-            "author": "Magnetic_Trailer"
+            "author": "Magnetic_Trailer",
+            "duration": "03:28"
         },
         {
             "index": "please-calm",
             "name": "Please Calm My Mind",
-            "author": "Lesfm"
+            "author": "Lesfm",
+            "duration": "02:55"
         }
     ],
     "info": {
