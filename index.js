@@ -28,7 +28,7 @@ app.get('/songs', function(req, res){
 })
 app.get("/song/:title", function(req, res){
     console.log(req.params);
-    if(songInfo.songs.indexOf(req.params['title'])){
+    if(songInfo.songs.indexOf(req.params['title']) == -1){
         res.status(400).send("Song not available");
     }
     const range = req.headers.range;
