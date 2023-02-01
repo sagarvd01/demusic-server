@@ -8,6 +8,9 @@ app.get("/", function (req, res) {
     res.sendFile(__dirname + "/index.html");
 });
 //epns channel => eip155:5:0xee6f3c8c7452AcafA0A2d2586552f8b77a3e4286
+app.use(function(req, res, next){
+    
+})
 app.get('/songs', function(req, res){
     const songs = songInfo.list;
     res.status(200).send(songs);
