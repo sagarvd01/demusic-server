@@ -6,17 +6,26 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 contract DeMusic is Ownable{
     address[] users;
     mapping(address => bool) userRegistry;
+    mapping(address => bool) userSubscriber;
     address server;
 
-    constructor(address svr){
-        server = address(svr);
+    constructor(){
     }
 
     function addUser() external{
         if(!userRegistry[msg.sender]){
             users.push(msg.sender);
             userRegistry[msg.sender] = true;
+            userSubscriber[msg.sender] = true;
         }
+    }
+
+    function unSubscribe() external{
+        userSubscriber[msg.sender] = false;
+    }
+
+    function checkUserSubsciptionStatus(address user) external view returns (bool){
+        return userSubscriber[user];
     }
 
     function addServerAddress(address svr) external onlyOwner{
