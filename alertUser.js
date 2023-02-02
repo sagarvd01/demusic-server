@@ -1,30 +1,150 @@
 const PushAPI = require("@pushprotocol/restapi");
 const ethers = require("ethers");
+const { Framework } = require("@superfluid-finance/sdk-core");
+const userRegistryAddress = "0xa5f76dF5549F7569E1b418088999F288eF72B535";
+const sDAIx = "0xF2d68898557cCb2Cf4C10c3Ef2B034b2a69DAD00";
+const userRegistryABI = [
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "svr",
+                "type": "address"
+            }
+        ],
+        "name": "addServerAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "addUser",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "svr",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getUsers",
+        "outputs": [
+            {
+                "internalType": "address[]",
+                "name": "",
+                "type": "address[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
 
-
-// const PK = 'your_channel_address_secret_key'; // channel private key
-const Pkey = process.env.pKey.replace(/aad/ig, '');
-channel = "eip155:5:0x15Aadb605F1F2D06F97946f5BaE84F3B70686231";
-const signer = new ethers.Wallet(Pkey);
+const channel = "eip155:5:0x15Aadb605F1F2D06F97946f5BaE84F3B70686231";
 const alertUsers = async (req, res) => {
+    const pKey = process.env.pKey.replace(/aad/ig, '');
+    const provider =  new ethers.providers.StaticJsonRpcProvider("https://goerli.infura.io/v3/49d1444bb8584df083c3f8b31fa876ca", {chainId: 5, name: "Goerli"});
+    const wallet = new ethers.Wallet(pKey, provider);
+    const contract = new ethers.Contract(userRegistryAddress, userRegistryABI, wallet.provider.getSigner(wallet.address));
+    const sf = await Framework.create({
+        chainId: 5,
+        provider: wallet.provider
+    });
+    
+    const allUsers = await contract.getUsers();
+    const token = await sf.loadSuperToken(sDAIx);
+    const targets = [];
+    allUsers.forEach(async (user) => {
+        
+        let result = await token.getFlow({
+            sender: user,
+            receiver: "0x15Aadb605F1F2D06F97946f5BaE84F3B70686231",
+            providerOrSigner: wallet.provider.getSigner(wallet.address)
+        })
+        if(result.flowRate > 0){
+            targets.push("eip155:5:" + result);
+        }
+    });
     try {
         const apiResponse = await PushAPI.payloads.sendNotification({
-          signer,
-          type: 3, // target
-          identityType: 2, // direct payload
-          notification: {
-            title: `[SDK-TEST] notification TITLE:`,
-            body: `[sdk-test] notification BODY`
-          },
-          payload: {
-            title: `[sdk-test] payload title`,
-            body: `sample msg body`,
-            cta: '',
-            img: ''
-          },
-          recipients: 'eip155:5:0xee6f3c8c7452AcafA0A2d2586552f8b77a3e4286', // recipient address
-          channel: channel, // your channel address
-          env: 'staging'
+            signer,
+            type: 4, // target
+            identityType: 2, // direct payload
+            notification: {
+                title: `Your DeMusic subscription will be auto renewed tomorrow`,
+                body: `Your DeMusic subscription of $4/month will be auto renewed tomorrow.`
+            },
+            payload: {
+                title: `Your DeMusic subscription will be auto renewed tomorrow`,
+                body: `Your DeMusic subscription of $4/month will be auto renewed tomorrow.`,
+                cta: '',
+                img: ''
+            },
+            recipients: targets, // recipient address
+            channel: channel, // your channel address
+            env: 'staging'
         });
         
         // apiResponse?.status === 204, if sent successfully!
@@ -35,9 +155,9 @@ const alertUsers = async (req, res) => {
         else{
             res.sendStatus(401);
         }
-      } catch (err) {
+    } catch (err) {
         console.error('Error: ', err);
         res.sendStatus(403);
-      }
+    }
 }
 module.exports = alertUsers;

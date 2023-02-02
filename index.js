@@ -3,11 +3,6 @@ const app = express();
 const fs = require("fs");
 const songInfo = require('./songInfo.json');
 const alertUsers = require('./alertUser');
-const announcement = require('./announcement');
-app.get("/", function (req, res) {
-    res.sendFile(__dirname + "/index.html");
-});
-//epns channel => eip155:5:0xee6f3c8c7452AcafA0A2d2586552f8b77a3e4286
 app.use(function(req, res, next){
     if( ["http://localhost:4200", "https://jolly-wind-4771.on.fleek.co/"].indexOf(req.headers.origin) > -1){
         res.setHeader("Access-Control-Allow-Origin",req.headers.origin);
@@ -55,11 +50,6 @@ app.get("/song/:title", function(req, res){
     musicStream.pipe(res);
 })
 app.get('/alertUsersAboutSubscription', alertUsers);
-app.get('/sendAnnouncementToUsersOnNewSongs', announcement);
-// app.get("/info/:song", function(req, res){
-//     res.status(200).send(songInfo.info[req.params['song']]);
-//     // res.status(200).send(songs);
-// })
 app.listen(8000, function () {
     console.log("Listening on port 8000!");
 });
